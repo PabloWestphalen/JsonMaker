@@ -1,4 +1,5 @@
 package com.jin.util;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
@@ -10,8 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * An utility with simple methods to serialize Java objects into
- * JSON-formatted ones.
+ * An utility with simple methods to serialize Java objects into JSON-formatted
+ * ones.
  * 
  * @author Pablo Westphalen
  */
@@ -31,6 +32,7 @@ public final class JsonMaker {
 	public String serialize(Collection<?> c) {
 		return getCollectionValues(c);
 	}
+
 	/**
 	 * Returns a String containing a JSON-formatted object based on the contents
 	 * of the specified Map.
@@ -43,8 +45,9 @@ public final class JsonMaker {
 	public String serialize(Map<?, ?> m) {
 		return getMapValues(m);
 	}
+
 	/**
-	 * Serializes an object into its JSON-formatted equivalent. 
+	 * Serializes an object into its JSON-formatted equivalent.
 	 * 
 	 * @param o
 	 *            the object to be serialized.
@@ -66,7 +69,9 @@ public final class JsonMaker {
 				fields[i].setAccessible(true);
 				json.append(getFieldValue(fields[i].getName(), fields[i].get(o)));
 			} catch (Exception e) {
-				System.err.println("Could not process field " + fields[i].getName() + " of class " + o.getClass().getName());
+				System.err.println("Could not process field "
+						+ fields[i].getName() + " of class "
+						+ o.getClass().getName());
 				continue;
 			}
 			if (i + 1 < fields.length) {
@@ -91,6 +96,7 @@ public final class JsonMaker {
 			return "\"" + field + "\": " + getValue(value);
 		}
 	}
+
 	/**
 	 * Converts an Object's meaningful value to its JSON-formatted equivalent.
 	 * 
@@ -185,7 +191,7 @@ public final class JsonMaker {
 		_objsVisited.put(o, _identity++);
 		return json.toString();
 	}
-	
+
 	private String escapeString(String s) {
 		return s.replaceAll("\"", "\\\\" + "\"").replaceAll("\r\n", "\\\\n")
 				.replaceAll("\n", "\\\\n").replaceAll("\t", " ");
