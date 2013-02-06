@@ -66,6 +66,8 @@ public final class JsonMaker {
 				fields[i].setAccessible(true);
 				json.append(getFieldValue(fields[i].getName(), fields[i].get(o)));
 			} catch (Exception e) {
+				System.err.println("Could not process field " + fields[i].getName() + " of class " + o.getClass().getName());
+				continue;
 			}
 			if (i + 1 < fields.length) {
 				json.append(", ");
@@ -163,11 +165,6 @@ public final class JsonMaker {
 		return json.toString();
 	}
 
-	private String escapeString(String s) {
-		return s.replaceAll("\"", "\\\\" + "\"").replaceAll("\r\n", "\\\\n")
-				.replaceAll("\n", "\\\\n").replaceAll("\t", " ");
-	}
-
 	private String getCollectionValues(Collection<?> o) {
 		StringBuilder json = new StringBuilder();
 		Iterator<?> it = o.iterator();
@@ -187,5 +184,10 @@ public final class JsonMaker {
 		json.append("]");
 		_objsVisited.put(o, _identity++);
 		return json.toString();
+	}
+	
+	private String escapeString(String s) {
+		return s.replaceAll("\"", "\\\\" + "\"").replaceAll("\r\n", "\\\\n")
+				.replaceAll("\n", "\\\\n").replaceAll("\t", " ");
 	}
 }
