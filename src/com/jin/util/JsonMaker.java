@@ -68,7 +68,7 @@ public final class JsonMaker {
 			try {
 				fields[i].setAccessible(true);
 				json.append(getFieldValue(fields[i].getName(), fields[i].get(o)));
-			} catch (Exception e) {
+			} catch (IllegalArgumentException | IllegalAccessException e) {
 				System.err.println("Could not process field "
 						+ fields[i].getName() + " of class "
 						+ o.getClass().getName());
@@ -90,7 +90,7 @@ public final class JsonMaker {
 			return "";
 		}
 		if (_objsVisited.containsKey(value)) {
-			return "\"" + field + "\" : \"@object" + _objsVisited.get(value)
+			return "\"" + field + "\" : \"@object_" + _objsVisited.get(value)
 					+ "\"";
 		} else {
 			return "\"" + field + "\": " + getValue(value);
