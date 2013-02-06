@@ -1,5 +1,4 @@
 package com.jin.util;
-//hi git, i've changed
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
