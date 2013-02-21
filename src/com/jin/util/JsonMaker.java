@@ -1,7 +1,12 @@
 package com.jin.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
@@ -11,7 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * An utility with simple methods to serialize Java objects into JSON-formatted
+ * An utility with simple static methods to serialize Java objects into JSON-formatted
  * ones.
  * 
  * @author Pablo Westphalen
@@ -19,9 +24,13 @@ import java.util.Map.Entry;
 public final class JsonMaker {
 	private final Map<Object, Long> _objsVisited = new IdentityHashMap<Object, Long>();
 	private long _identity = 1;
+	
+	private JsonMaker() {
+		
+	}
 
 	/**
-	 * Returns a String containing a JSON-formatted array based on the contents
+	 * Returns a JSON-formatted array containing the elements
 	 * of the specified Collection.
 	 * 
 	 * @param c
@@ -29,8 +38,8 @@ public final class JsonMaker {
 	 * @return A String containing a JSON-formatted array based on the contents
 	 *         of the specified Collection;
 	 */
-	public String serialize(Collection<?> c) {
-		return getCollectionValues(c);
+	public static String serialize(Collection<?> c) {
+		return new JsonMaker().getCollectionValues(c);
 	}
 
 	/**
@@ -42,8 +51,8 @@ public final class JsonMaker {
 	 * @return A String containing a JSON-formatted object based on the contents
 	 *         of the specified Map.
 	 */
-	public String serialize(Map<?, ?> m) {
-		return getMapValues(m);
+	public static String serialize(Map<?, ?> m) {
+		return new JsonMaker().getMapValues(m);
 	}
 
 	/**
@@ -54,8 +63,31 @@ public final class JsonMaker {
 	 * @return A String containing a JSON-formatted object based on the
 	 *         attributes of the specified object.
 	 */
-	public String serialize(Object o) {
-		return doSerialize(o);
+	public static String serialize(Object o) {
+		return new JsonMaker().doSerialize(o);
+	}
+	
+	public static String getJson(String url) {
+		try {
+			URLConnection con = new URL(url).openConnection();
+			con.setConnectTimeout(1000);
+			con.setReadTimeout(1000);
+			StringBuilder out = new StringBuilder();
+			String line;
+			  BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			    while ((line = in.readLine()) != null) {
+			    	out.append(line);
+			    }
+			    in.close();
+			    return out.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(getJson("https://pablow-tpdb.rhcloud.com/album/?id=3&json=true"));
 	}
 
 	private String doSerialize(Object o) {
@@ -68,7 +100,7 @@ public final class JsonMaker {
 			try {
 				fields[i].setAccessible(true);
 				json.append(getFieldValue(fields[i].getName(), fields[i].get(o)));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+			} catch (Exception e) {
 				System.err.println("Could not process field "
 						+ fields[i].getName() + " of class "
 						+ o.getClass().getName());
