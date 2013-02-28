@@ -86,10 +86,6 @@ public final class JsonMaker {
 		}
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(getJson("https://pablow-tpdb.rhcloud.com/album/?id=3&json=true"));
-	}
-
 	private String doSerialize(Object o) {
 		_objsVisited.put(o, _identity++);
 		StringBuilder json = new StringBuilder();
@@ -138,7 +134,9 @@ public final class JsonMaker {
 	 *         value.
 	 */
 	private String getValue(Object o) {
-		if (o instanceof String || o instanceof Enum) {
+		if(o == null) {
+			return "null";
+		} else if (o instanceof String || o instanceof Enum) {
 			return "\"" + escapeString(o.toString()) + "\"";
 		} else if (o instanceof Number) {
 			return o.toString();
