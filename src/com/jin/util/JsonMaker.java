@@ -3,6 +3,7 @@ package com.jin.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -86,6 +87,10 @@ public final class JsonMaker {
 		}
 	}
 	
+	private boolean isTransient(AccessibleObject f) {
+		return f.isAnnotationPresent(java.beans.Transient.class);
+	}
+	
 	private String doSerialize(Object o) {
 		_objsVisited.put(o, _identity++);
 		StringBuilder json = new StringBuilder();
@@ -95,7 +100,11 @@ public final class JsonMaker {
 		for (int i = 0; i < fields.length; i++) {
 			try {
 				fields[i].setAccessible(true);
-				json.append(getFieldValue(fields[i].getName(), fields[i].get(o)));
+				if(isTransient(fields[i])) {
+					continue; // skip to next field
+				} else { 
+					json.append(getFieldValue(fields[i].getName(), fields[i].get(o)));
+				}
 			} catch (Exception e) {
 				System.err.println("Could not process field "
 						+ fields[i].getName() + " of class "
