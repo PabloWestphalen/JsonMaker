@@ -3,6 +3,7 @@ package com.jin.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -25,24 +26,24 @@ import java.util.Map.Entry;
 public final class JsonMaker {
 	private final Map<Object, Long> _objsVisited = new IdentityHashMap<Object, Long>();
 	private long _identity = 1;
-	
 	private JsonMaker() {
 		
 	}
+	
+	
 
 	/**
 	 * Returns a JSON-formatted array containing the elements
 	 * of the specified Collection.
 	 * 
-	 * @param c
-	 *            the Collection to be evaluated.
+	 * @param c the Collection to be evaluated.
 	 * @return A String containing a JSON-formatted array based on the contents
 	 *         of the specified Collection;
 	 */
 	public static String serialize(Collection<?> c) {
 		return new JsonMaker().getCollectionValues(c);
 	}
-
+	
 	/**
 	 * Returns a String containing a JSON-formatted object based on the contents
 	 * of the specified Map.
@@ -55,7 +56,7 @@ public final class JsonMaker {
 	public static String serialize(Map<?, ?> m) {
 		return new JsonMaker().getMapValues(m);
 	}
-
+	
 	/**
 	 * Serializes an object into its JSON-formatted equivalent.
 	 * 
@@ -75,12 +76,12 @@ public final class JsonMaker {
 			con.setReadTimeout(1000);
 			StringBuilder out = new StringBuilder();
 			String line;
-			  BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			    while ((line = in.readLine()) != null) {
-			    	out.append(line);
-			    }
-			    in.close();
-			    return out.toString();
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			while ((line = in.readLine()) != null) {
+				out.append(line);
+			}
+			in.close();
+			return out.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
@@ -88,15 +89,24 @@ public final class JsonMaker {
 	}
 	
 	private boolean isTransient(AccessibleObject f) {
-		return f.isAnnotationPresent(java.beans.Transient.class);
+		for(Annotation a : f.getAnnotations()) {
+			if(a.annotationType().toString().endsWith("Transient")) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private String doSerialize(Object o) {
 		_objsVisited.put(o, _identity++);
 		StringBuilder json = new StringBuilder();
 		json.append("{");
+		
 		json.append("\"@objectID\": " + _objsVisited.get(o) + ", ");
 		Field[] fields = o.getClass().getDeclaredFields();
+		
+		
+		
 		for (int i = 0; i < fields.length; i++) {
 			try {
 				fields[i].setAccessible(true);
@@ -112,13 +122,15 @@ public final class JsonMaker {
 				continue;
 			}
 			if (i + 1 < fields.length) {
-				json.append(", ");
+				if(!isTransient(fields[i+1])) {
+					json.append(", "); 
+				}
 			}
 		}
 		json.append("}");
 		return json.toString();
 	}
-
+	
 	private String getFieldValue(String field, Object value) {
 		if (value == null) {
 			return "\"" + field + "\": null";
@@ -133,7 +145,7 @@ public final class JsonMaker {
 			return "\"" + field + "\": " + getValue(value);
 		}
 	}
-
+	
 	/**
 	 * Converts an Object's meaningful value to its JSON-formatted equivalent.
 	 * 
@@ -162,7 +174,7 @@ public final class JsonMaker {
 		}
 		return doSerialize(o);
 	}
-
+	
 	private String getObjectArray(Object o) {
 		StringBuilder json = new StringBuilder();
 		Object[] objs = (Object[]) o;
@@ -176,7 +188,7 @@ public final class JsonMaker {
 		json.append("]");
 		return json.toString();
 	}
-
+	
 	private String getMapValues(Object o) {
 		StringBuilder json = new StringBuilder();
 		json.append("{");
@@ -192,7 +204,7 @@ public final class JsonMaker {
 		json.append("}");
 		return json.toString();
 	}
-
+	
 	private String getArrayOfPrimitives(Object o) {
 		StringBuilder json = new StringBuilder();
 		json.append("[");
@@ -209,7 +221,7 @@ public final class JsonMaker {
 		json.append("]");
 		return json.toString();
 	}
-
+	
 	private String getCollectionValues(Collection<?> o) {
 		StringBuilder json = new StringBuilder();
 		Iterator<?> it = o.iterator();
@@ -230,7 +242,7 @@ public final class JsonMaker {
 		_objsVisited.put(o, _identity++);
 		return json.toString();
 	}
-
+	
 	private String escapeString(String s) {
 		return s.replaceAll("\"", "\\\\" + "\"").replaceAll("\r\n", "\\\\n")
 				.replaceAll("\n", "\\\\n").replaceAll("\t", " ");
