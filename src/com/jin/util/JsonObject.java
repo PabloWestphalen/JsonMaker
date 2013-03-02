@@ -45,7 +45,7 @@ public class JsonObject {
 	
 	@Override
 	public String toString(){
-		return map.toString();
+		return JsonMaker.serialize(map);
 	}
 }
 
