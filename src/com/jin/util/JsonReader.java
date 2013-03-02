@@ -41,7 +41,7 @@ public class JsonReader {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Gets back to java
 	 * 
@@ -60,6 +60,9 @@ public class JsonReader {
 		while (!done) {
 			c = readSkipWhitespace();
 			if (c != null && c == '{') {
+				if (nextNonWhitespaceChar() == '}') {
+					return null;
+				}
 				do {
 					String field = "";
 					Object value = null;
@@ -81,6 +84,8 @@ public class JsonReader {
 	}
 	
 	/**
+	 * //FIXME: lidar com arrays ou objetos vazios -> [], {}
+	 * 
 	 * @return
 	 */
 	private Object getValue(){
@@ -158,6 +163,10 @@ public class JsonReader {
 			}
 			objectString += c;
 		}
+		/*
+		 * if (objectString.equals("{}")) { return null; } else { return
+		 * JsonReader.toJava(objectString); }
+		 */
 		return JsonReader.toJava(objectString);
 	}
 	
@@ -179,6 +188,9 @@ public class JsonReader {
 	 */
 	private Object readArray(){
 		Character c = nextNonWhitespaceChar();
+		if (c == ']') {
+			return null;
+		}
 		if (c == '"') { // array of strings
 			ArrayList<String> elements = new ArrayList<String>();
 			do {
