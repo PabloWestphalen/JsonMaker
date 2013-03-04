@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Clean attempt at reading a json string using the state pattern
@@ -30,8 +31,17 @@ public class JsonReader {
 			con.setReadTimeout(10 * 1000);
 			StringBuilder out = new StringBuilder();
 			String line;
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getInputStream()));
+			BufferedReader in = null;
+			if (con.getContentEncoding() != null
+					&& con.getContentEncoding().equals("gzip")) {
+				InputStreamReader is = new InputStreamReader(
+						new GZIPInputStream(con.getInputStream()));
+				in = new BufferedReader(is);
+			} else {
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						con.getInputStream()));
+				in = br;
+			}
 			while ((line = in.readLine()) != null) {
 				out.append(line);
 			}
