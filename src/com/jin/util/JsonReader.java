@@ -24,11 +24,11 @@ public class JsonReader {
 		this.json = json;
 	}
 	
-	public static JsonObject getJson(String url){
+	public static String fetch(String url){
 		try {
 			URLConnection con = new URL(url).openConnection();
-			con.setConnectTimeout(10 * 1000);
-			con.setReadTimeout(10 * 1000);
+			con.setConnectTimeout(100 * 1000);
+			con.setReadTimeout(100 * 1000);
 			StringBuilder out = new StringBuilder();
 			String line;
 			BufferedReader in = null;
@@ -46,11 +46,15 @@ public class JsonReader {
 				out.append(line);
 			}
 			in.close();
-			return JsonReader.toJava(out.toString());
+			return out.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static JsonObject getJson(String url){
+		return JsonReader.toJava(fetch(url));
 	}
 	
 	/**

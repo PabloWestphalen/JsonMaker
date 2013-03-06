@@ -1,54 +1,59 @@
 package com.jin.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JsonObject {
-	private final LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-	
-	public Object get(String k){
-		return map.get(k);
-	}
+public class JsonObject extends LinkedHashMap<String, Object> {
+	private static final long serialVersionUID = 1L;
 	
 	public Object[] getArray(String key){
-		Object obj = map.get(key);
+		Object obj = this.get(key);
 		if (obj instanceof Object[]) {
 			return (Object[]) obj;
 		} else if (obj instanceof List) {
 			return ((List<?>) obj).toArray();
 		}
-		return (Object[]) map.get(key);
+		return (Object[]) this.get(key);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public JsonObject[] getObjectArray(String key){
+		ArrayList<Object> original = (ArrayList<Object>) this.get(key);
+		if (original != null) {
+			JsonObject[] arr = new JsonObject[original.size()];
+			return ((ArrayList<JsonObject>) this.get(key)).toArray(arr);
+		} else {
+			return null;
+		}
 	}
 	
 	public List<?> getList(String key){
-		return (List<?>) map.get(key);
-	}
-	
-	public Collection<?> getCollection(String key){
-		return (Collection<?>) map.get(key);
+		return (List<?>) this.get(key);
 	}
 	
 	public Map<String, Object> getMap(){
-		return map;
+		return this;
 	}
 	
 	public JsonObject getObject(String k){
-		return (JsonObject) map.get(k);
-	}
-	
-	
-	public void put(String k, Object v){
-		map.put(k, v);
+		return (JsonObject) this.get(k);
 	}
 	
 	@Override
 	public String toString(){
-		return JsonMaker.serialize(map);
+		if (this.size() == 1) {
+			Object single = super.values().iterator().next();
+			if (single instanceof Collection || single instanceof Object[]) {
+				return super.toString();
+			} else {
+				return single.toString();
+			}
+		} else if (this.size() > 1) {
+			return super.toString();
+		}
+		return null;
 	}
 }
-
-
-
-
