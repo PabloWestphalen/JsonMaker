@@ -19,12 +19,12 @@ public class JsonReader {
 	private final String json;
 	private final JsonObject obj = new JsonObject();
 	private final boolean debug = false;
-	
+
 	private JsonReader(String json) {
 		this.json = json;
 	}
-	
-	public static String fetch(String url){
+
+	public static String fetch(String url) {
 		try {
 			URLConnection con = new URL(url).openConnection();
 			con.setConnectTimeout(100 * 1000);
@@ -32,15 +32,13 @@ public class JsonReader {
 			StringBuilder out = new StringBuilder();
 			String line;
 			BufferedReader in = null;
-			if (con.getContentEncoding() != null
-					&& con.getContentEncoding().equals("gzip")) {
-				InputStreamReader is = new InputStreamReader(
-						new GZIPInputStream(con.getInputStream()));
+			if (con.getContentEncoding() != null && con.getContentEncoding().equals("gzip")) {
+				InputStreamReader is = new InputStreamReader(new GZIPInputStream(con.getInputStream()));
 				in = new BufferedReader(is);
 			} else {
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						con.getInputStream()));
-				in = br;
+				try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+					in = br;
+				}
 			}
 			while ((line = in.readLine()) != null) {
 				out.append(line);
@@ -52,25 +50,25 @@ public class JsonReader {
 			return null;
 		}
 	}
-	
-	public static JsonObject getJson(String url){
+
+	public static JsonObject getJson(String url) {
 		return JsonReader.toJava(fetch(url));
 	}
-	
+
 	/**
 	 * Gets back to java
 	 * 
 	 * @param json
 	 * @return
 	 */
-	public static JsonObject toJava(String json) throws RuntimeException{
+	public static JsonObject toJava(String json) throws RuntimeException {
 		return new JsonReader(json).parseJson();
 	}
-	
+
 	/**
 	 * @param json
 	 */
-	private JsonObject parseJson(){
+	private JsonObject parseJson() {
 		Character c;
 		while (!done) {
 			c = readSkipWhitespace();
@@ -103,11 +101,11 @@ public class JsonReader {
 		}
 		return obj;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private Object getValue(){
+	private Object getValue() {
 		if (nextNonWhitespaceChar() == '"') {
 			readSkipWhitespace();
 			return readString();
@@ -128,11 +126,11 @@ public class JsonReader {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private Object readNull(){
+	private Object readNull() {
 		readSkipWhitespace();
 		int pos = currentChar;
 		if (json.substring(pos - 1, pos + 3).equals("null")) {
@@ -141,11 +139,11 @@ public class JsonReader {
 		}
 		return "porra";
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private Character nextNonWhitespaceChar(){
+	private Character nextNonWhitespaceChar() {
 		int charsRead = 0;
 		if (currentChar + 1 <= json.length()) {
 			Character c;
@@ -160,11 +158,11 @@ public class JsonReader {
 		done = true;
 		return null;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private JsonObject readObject(){
+	private JsonObject readObject() {
 		String objectString = "{";
 		boolean bracesBalanced = false;
 		int openedBraces = 1, closedBraces = 0;
@@ -183,16 +181,15 @@ public class JsonReader {
 			objectString += c;
 		}
 		/*
-		 * if (objectString.equals("{}")) { return null; } else { return
-		 * JsonReader.toJava(objectString); }
+		 * if (objectString.equals("{}")) { return null; } else { return JsonReader.toJava(objectString); }
 		 */
 		return JsonReader.toJava(objectString);
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private String readNumber(){
+	private String readNumber() {
 		String value = "";
 		Character c;
 		while (nextNonWhitespaceChar() != ',' && nextNonWhitespaceChar() != '}') {
@@ -201,11 +198,11 @@ public class JsonReader {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private Object readArray(){
+	private Object readArray() {
 		Character c = nextNonWhitespaceChar();
 		if (c == ']') {
 			return null;
@@ -271,8 +268,8 @@ public class JsonReader {
 		}
 		return "INVALID ARRAY";
 	}
-	
-	private String readString(){
+
+	private String readString() {
 		String value = "";
 		Character c;
 		c = read();
@@ -301,23 +298,23 @@ public class JsonReader {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	private Character read(){
+	private Character read() {
 		if (currentChar + 1 <= json.length()) {
 			return json.charAt(currentChar++);
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * @param json
 	 * @return
 	 */
-	private Character readSkipWhitespace(){
+	private Character readSkipWhitespace() {
 		if (currentChar + 1 <= json.length()) {
 			Character c;
 			while (currentChar + 1 <= json.length()) {
