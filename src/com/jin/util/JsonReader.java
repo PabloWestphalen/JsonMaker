@@ -36,8 +36,8 @@ public class JsonReader {
 				InputStreamReader is = new InputStreamReader(new GZIPInputStream(con.getInputStream()));
 				in = new BufferedReader(is);
 			} else {
-				try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-					in = br;
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+					in = reader;
 				}
 			}
 			while ((line = in.readLine()) != null) {
