@@ -23,7 +23,8 @@ public class JsonObject extends LinkedHashMap<String, Object> {
 		ArrayList<?> original = (ArrayList<?>) this.get(key);
 		if (original != null) {
 			JsonObject[] arr = new JsonObject[original.size()];
-			return ((ArrayList<?>) this.get(key)).toArray(arr);
+			JsonObject[] jsonObjects = ((ArrayList<?>) this.get(key)).toArray(arr);
+			return jsonObjects;
 		} else {
 			return null;
 		}
