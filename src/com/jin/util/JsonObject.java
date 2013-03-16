@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class JsonObject extends LinkedHashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
-	
-	public Object[] getArray(String key){
+
+	public Object[] getArray(String key) {
 		Object obj = this.get(key);
 		if (obj instanceof Object[]) {
 			return (Object[]) obj;
@@ -18,32 +18,31 @@ public class JsonObject extends LinkedHashMap<String, Object> {
 		}
 		return (Object[]) this.get(key);
 	}
-	
-	@SuppressWarnings("unchecked")
-	public JsonObject[] getObjectArray(String key){
-		ArrayList<Object> original = (ArrayList<Object>) this.get(key);
+
+	public JsonObject[] getObjectArray(String key) {
+		ArrayList<?> original = (ArrayList<?>) this.get(key);
 		if (original != null) {
 			JsonObject[] arr = new JsonObject[original.size()];
-			return ((ArrayList<JsonObject>) this.get(key)).toArray(arr);
+			return ((ArrayList<?>) this.get(key)).toArray(arr);
 		} else {
 			return null;
 		}
 	}
-	
-	public List<?> getList(String key){
+
+	public List<?> getList(String key) {
 		return (List<?>) this.get(key);
 	}
-	
-	public Map<String, Object> getMap(){
+
+	public Map<String, Object> getMap() {
 		return this;
 	}
-	
-	public JsonObject getObject(String k){
+
+	public JsonObject getObject(String k) {
 		return (JsonObject) this.get(k);
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		if (this.size() == 1) {
 			Object single = super.values().iterator().next();
 			if (single instanceof Collection || single instanceof Object[]) {
