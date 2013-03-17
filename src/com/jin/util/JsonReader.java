@@ -129,7 +129,7 @@ public class JsonReader {
 			readSkipWhitespace();
 			return readArray();
 		}
-		if (Character.isDigit(nextNonWhitespaceChar())) {
+		if (Character.isDigit(nextNonWhitespaceChar()) || nextNonWhitespaceChar() == '.') {
 			return readNumber();
 		}
 		if (nextNonWhitespaceChar() == '{') {
@@ -206,6 +206,8 @@ public class JsonReader {
 	 * @return
 	 */
 	private String readNumber() {
+		/*TODO: see if it's possible (and relevant) to change the return type to Number and parse
+		 the appropriate type.*/
 		String value = "";
 		Character c;
 		while (nextNonWhitespaceChar() != ',' && nextNonWhitespaceChar() != '}') {
