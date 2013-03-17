@@ -16,7 +16,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
 		} else if (obj instanceof List) {
 			return ((List<?>) obj).toArray();
 		}
-		return (Object[]) this.get(key);
+		return null;
 	}
 
 	public JsonObject[] getObjectArray(String key) {
