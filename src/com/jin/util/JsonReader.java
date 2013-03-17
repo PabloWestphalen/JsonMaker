@@ -24,7 +24,7 @@ public class JsonReader {
 		this.json = json;
 	}
 	
-	public static String fetch(String url){
+	public static String fetch(String url) {
 		try {
 			URLConnection con = new URL(url).openConnection();
 			con.setConnectTimeout(100 * 1000);
@@ -54,7 +54,7 @@ public class JsonReader {
 		}
 	}
 	
-	public static JsonObject getJson(String url){
+	public static JsonObject getJson(String url) {
 		return JsonReader.toJava(fetch(url));
 	}
 	
@@ -64,14 +64,14 @@ public class JsonReader {
 	 * @param json
 	 * @return
 	 */
-	public static JsonObject toJava(String json) throws RuntimeException{
+	public static JsonObject toJava(String json) throws RuntimeException {
 		return new JsonReader(json).parseJson();
 	}
 	
 	/**
 	 * @param json
 	 */
-	private JsonObject parseJson(){
+	private JsonObject parseJson() {
 		Character c;
 		while (!done) {
 			c = readSkipWhitespace();
@@ -106,9 +106,21 @@ public class JsonReader {
 	}
 	
 	/**
-	 * @return
+	 * Gets the value associated with the field, using the first non whitespace
+	 * character to infer its type.
+	 * <p>
+	 * The value can be:
+	 * <ul>
+	 * <li>A String, '"'</li>
+	 * <li>An array, '['</li>
+	 * <li>A number, if it's a digit</li>
+	 * <li>Another Object, '{'</li>
+	 * <li>A null value, 'n'</li>
+	 * </ul>
+	 * 
+	 * @return The property value.
 	 */
-	private Object getValue(){
+	private Object getValue() {
 		if (nextNonWhitespaceChar() == '"') {
 			readSkipWhitespace();
 			return readString();
@@ -133,7 +145,7 @@ public class JsonReader {
 	/**
 	 * @return
 	 */
-	private Object readNull(){
+	private Object readNull() {
 		readSkipWhitespace();
 		int pos = currentChar;
 		if (json.substring(pos - 1, pos + 3).equals("null")) {
@@ -146,7 +158,7 @@ public class JsonReader {
 	/**
 	 * @return
 	 */
-	private Character nextNonWhitespaceChar(){
+	private Character nextNonWhitespaceChar() {
 		int charsRead = 0;
 		if (currentChar + 1 <= json.length()) {
 			Character c;
@@ -165,7 +177,7 @@ public class JsonReader {
 	/**
 	 * @return
 	 */
-	private JsonObject readObject(){
+	private JsonObject readObject() {
 		String objectString = "{";
 		boolean bracesBalanced = false;
 		int openedBraces = 1, closedBraces = 0;
@@ -193,7 +205,7 @@ public class JsonReader {
 	/**
 	 * @return
 	 */
-	private String readNumber(){
+	private String readNumber() {
 		String value = "";
 		Character c;
 		while (nextNonWhitespaceChar() != ',' && nextNonWhitespaceChar() != '}') {
@@ -206,7 +218,7 @@ public class JsonReader {
 	/**
 	 * @return
 	 */
-	private Object readArray(){
+	private Object readArray() {
 		Character c = nextNonWhitespaceChar();
 		if (c == ']') {
 			return null;
@@ -273,7 +285,7 @@ public class JsonReader {
 		return "INVALID ARRAY";
 	}
 	
-	private String readString(){
+	private String readString() {
 		String value = "";
 		Character c;
 		c = read();
@@ -306,7 +318,7 @@ public class JsonReader {
 	/**
 	 * @return
 	 */
-	private Character read(){
+	private Character read() {
 		if (currentChar + 1 <= json.length()) {
 			return json.charAt(currentChar++);
 		} else {
@@ -318,7 +330,7 @@ public class JsonReader {
 	 * @param json
 	 * @return
 	 */
-	private Character readSkipWhitespace(){
+	private Character readSkipWhitespace() {
 		if (currentChar + 1 <= json.length()) {
 			Character c;
 			while (currentChar + 1 <= json.length()) {
